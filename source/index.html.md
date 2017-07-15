@@ -1,14 +1,11 @@
 ---
-title: API Reference
+title: Meeting API Reference
 
 language_tabs:
   - shell
-  - ruby
-  - python
   - javascript
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
   - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
@@ -19,69 +16,66 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to the Meeting Monitor API! You can use our API to access Meeting Monitor API endpoints, which can get information on our the information about meetings/client meetings in our database.
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
 
 This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
 
 # Authentication
 
-> To authorize, use this code:
+## Login.
 
-```ruby
-require 'kittn'
+You must use the login to access various sort of dashboards from the Meeting Monitor Backend.
+The api endpoints will be accessible only after a valid login is done and valid access token is created.
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
+````javascript
+var xhttp = new XMLHttpRequest();
+var example = {
+    "username":"<some random username>",
+    "password":"some password"
+};
+xhttp.open("POST", "http://<Api-base-endpoint>/login", true);
+xhttp.send(example);
+````
 ```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+curl 
+    -H "Accept: application/json" 
+    -H "Content-type: application/json" 
+    -X POST 
+    -d '{"username":"<username>","password":"<password>"}' 
+    http://<your-base-api-endpoint>/login
 ```
 
-```javascript
-const kittn = require('kittn');
 
-let api = kittn.authorize('meowmeowmeow');
+### Http Request
+
+` POST http://<Api-base-endpoint>/login `
+
+### Request Body
+
+Parameter | Default | Description
+--------- | ------- | -----------
+username | <not-empty(String)> | Indicates the username of the user.
+password | <not-empty(String)> | Indicates the password of the user.
+
+### Response 
+
+```json
+{
+  "accessToken":"random-string-values",
+  "expiresIn":"timeStamp",
+  "reloadToken":"token-to-reload-the-auth-token"
+}
 ```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must store the result access tokens in the localStorage or an device bound database and attach it with every request to access data from the server.
 </aside>
 
-# Kittens
+# Meetings
 
 ## Get All Kittens
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
 
 ```shell
 curl "http://example.com/api/kittens"
@@ -135,20 +129,6 @@ Remember — a happy kitten is an authenticated kitten!
 
 ## Get a Specific Kitten
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
 ```shell
 curl "http://example.com/api/kittens/2"
   -H "Authorization: meowmeowmeow"
@@ -187,3 +167,59 @@ Parameter | Description
 --------- | -----------
 ID | The ID of the kitten to retrieve
 
+# Users
+
+## Get Users
+This will give you a list of all the users matching to the string parameter you gave.
+
+```javascript
+var xhttp = new XMLHttpRequest();
+var userSearch = {
+  "searchUser":"<random-substring>"  
+};
+xhttp.onreadystatechange = function() {
+    console.log(JSON.parse(xhttp.responseText));
+};
+xhttp.open("GET", "http://<Api-base-endpoint>/users", true);
+xhttp.setRequestHeader("accessToken","token that is retreived from the inbound database")
+xhttp.send(userSearch);
+```
+```shell
+curl 
+    -H "Accept: application/json" 
+    -H "Content-type: application/json"
+    -H "accessToken: random accessToken "
+    -X GET 
+    -d '{"searchUser":"<non-empty-string>"}' 
+    http://<your-base-api-endpoint>/login
+```
+
+### Http Request
+
+` GET http://<base-api-endpoint>/users`
+
+### Request Body
+
+Parameter | Default | Description
+--------- | ------- | -----------
+searchUser | <not-empty(String)> | Indicates the substring of the name of the user.
+
+### Special Request Headers
+
+Header | Default | Description
+--------- | ------- | -----------
+accessToken | <not-empty(String)> | Indicates the accessToken of the User.
+
+
+### Response
+
+```json
+[
+  {
+    "name":"string",
+    "avatar":"static-file-location",
+    "designation":"String",
+    "desc":"short-desc"
+  }
+]
+```
